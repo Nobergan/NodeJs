@@ -24,8 +24,10 @@ const copyEmailsByDomain = async () => {
     };
 
     try {
-        for await (const email of rlInterface) {
+        for await (const line of rlInterface) {
             for (const domain in domainToStream) {
+                const email = line.trim().split(/\s+/).pop();
+
                 if (email.trim().endsWith(domain)) {
                     domainToStream[domain].write(`${email}\n`);
                 }
@@ -51,7 +53,9 @@ const copyEmailsByDomain = async () => {
     // };
     //
     // try {
-    //     for await (const email of rlInterface) {
+    //     for await (const line of rlInterface) {
+    //         const email = line.trim().split(/\s+/).pop();
+    //
     //         for (const domain in domainToFile) {
     //             if (email.trim().endsWith(domain)) {
     //                 await afs.appendFile(domainToFile[domain], `${email}\n`);
@@ -66,8 +70,10 @@ const copyEmailsByDomain = async () => {
     /*** gmail appendFile ***/
     /***  ***/
     // try {
-    //     for await (const email of rlInterface) {
-    //         if (email.trim().endsWith('@gmail.com')) {
+    //     for await (const line of rlInterface) {
+    //         const email = line.trim().split(/\s+/).pop();
+    //
+    //         if (email.endsWith('@gmail.com')) {
     //             await afs.appendFile('./lesson-1-homework/gmailEmails.txt', `${email}\n`);
     //         }
     //     }
@@ -81,8 +87,10 @@ const copyEmailsByDomain = async () => {
     // const gmailStream = fs.createWriteStream('./lesson-1-homework/gmailEmails.txt');
     //
     // try {
-    //     for await (const email of rlInterface) {
-    //         if (email.trim().endsWith('@gmail.com')) {
+    //     for await (const line of rlInterface) {
+    //         const email = line.trim().split(/\s+/).pop();
+    //
+    //         if (email.endsWith('@gmail.com')) {
     //             gmailStream.write(email + '\n');
     //         }
     //     }
@@ -90,7 +98,6 @@ const copyEmailsByDomain = async () => {
     //     await rlInterface.close();
     //     gmailStream.end();
     // }
-
 }
 
 copyEmailsByDomain().catch(console.error);
