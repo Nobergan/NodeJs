@@ -1,5 +1,5 @@
 const express = require('express');
-const {userService} = require("./services/user.service");
+const { userService } = require("./services/user.service");
 
 const app = express();
 
@@ -53,6 +53,21 @@ app.post('/users', async (req, res) => {
     const user = req.body;
     const data = await userService.create(user);
     res.json(data)
+});
+
+app.patch('/users/:id', async (req, res) => {
+    const data = req.body;
+    const id = req.params.id;
+    const user = await userService.updateUsersById(id, data);
+
+    res.json(user)
+});
+
+app.delete('/users/:id', async (req, res) => {
+    const id = req.params.id;
+    const user = await userService.deleteUsersById(id);
+
+    res.json(user)
 });
 
 app.listen(5555, () => console.log('Server is running on port 5555'));

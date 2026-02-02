@@ -1,4 +1,4 @@
-const {userRepository} = require("../../repositories/user.repository");
+const { userRepository } = require("../../repositories/user.repository");
 
 class UserService {
     async getAll() {
@@ -11,6 +11,14 @@ class UserService {
 
     async create(user) {
         return await userRepository.create(user);
+    }
+
+    async updateUsersById(id, data) {
+        return await userRepository.updateUserById(id, data)
+    }
+
+    async deleteUsersById(id) {
+        return await userRepository.deleteUserById(id)
     }
 }
 
