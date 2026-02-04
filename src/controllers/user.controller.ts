@@ -1,6 +1,6 @@
 import {userService} from "../services/user.service";
 import {Request, Response} from "express";
-import {UserDTO} from "../interfaces/user.interface";
+import {IUser, UserDTO} from "../interfaces/user.interface";
 import {StatusCodes} from "../enums/status-codes.enum";
 
 class UserController {
@@ -21,6 +21,21 @@ class UserController {
         const userById = await userService.getUserById(userId)
 
         res.status(StatusCodes.OK).json(userById);
+    }
+
+    public async updateUserById(req: Request, res: Response) {
+        const data = req.body as IUser;
+        const userId = String(req.params.id);
+        const user = await userService.updateUserById(userId, data)
+
+        res.status(StatusCodes.OK).json(user);
+    }
+
+    public async deleteUserById(req: Request, res: Response) {
+        const userId = String(req.params.id);
+        await userService.deleteUserById(userId)
+
+        res.status(StatusCodes.NO_CONTENT).end();
     }
 }
 

@@ -13,6 +13,14 @@ class UserRepository {
     public getUserById(userId: string): Promise<IUser | null> {
         return User.findById(userId);
     }
+
+    public updateUserById(userId: string, data: IUser): Promise<IUser | null> {
+        return User.findByIdAndUpdate(userId, data, { new: true });
+    }
+
+    public deleteUserById(userId: string): Promise<IUser | null> {
+        return User.findByIdAndDelete(userId);
+    }
 }
 
 export const userRepository = new UserRepository();

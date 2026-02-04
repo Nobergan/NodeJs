@@ -13,6 +13,14 @@ class UserService {
     public getUserById(userId: string): Promise<IUser | null> {
         return userRepository.getUserById(userId);
     }
+
+    public updateUserById(userId: string, data: IUser): Promise<IUser | null> {
+        return userRepository.updateUserById(userId, data);
+    }
+
+    public deleteUserById(userId: string): Promise<IUser | null> {
+        return userRepository.deleteUserById(userId);
+    }
 }
 
 export const userService = new UserService();
