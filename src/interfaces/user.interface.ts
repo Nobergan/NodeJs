@@ -7,4 +7,4 @@ export interface IUser {
     updatedAt: Date;
 }
 
-export type UserDTO = Pick<IUser, 'name' | 'surname' | 'age'>;
+export type UserDTO = Pick<IUser, "name" | "surname" | "age">;
