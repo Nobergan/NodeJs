@@ -12,8 +12,21 @@ router.post(
     commonMiddleware.validateBody(UserValidator.createUser),
     userController.createUser,
 );
-router.get("/:id", userController.getUserById);
-router.patch("/:id", userController.updateUserById);
-router.delete("/:id", userController.deleteUserById);
+router.get(
+    "/:id",
+    commonMiddleware.isIdValid("id"),
+    userController.getUserById,
+);
+router.patch(
+    "/:id",
+    commonMiddleware.isIdValid("id"),
+    commonMiddleware.validateBody(UserValidator.updateUser),
+    userController.updateUserById,
+);
+router.delete(
+    "/:id",
+    commonMiddleware.isIdValid("id"),
+    userController.deleteUserById,
+);
 
 export const userRouter = router;
