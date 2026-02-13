@@ -22,4 +22,8 @@ export class UserValidator {
         surname: this.surname.required(),
         age: this.age.required(),
     });
+
+    public static changeStatus = joi.object({
+        isActive: joi.boolean().required(),
+    });
 }

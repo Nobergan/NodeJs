@@ -13,6 +13,7 @@ const userSchema = new Schema(
         age: { type: Number, required: true },
         isDeleted: { type: Boolean, default: false },
         isVerified: { type: Boolean, default: false },
+        isActive: { type: Boolean, default: true },
     },
     { timestamps: true, versionKey: false },
 );

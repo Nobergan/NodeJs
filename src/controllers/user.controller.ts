@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 
 import { StatusCodes } from "../enums/status-codes.enum";
+import { ApiError } from "../errors/api.error";
+import { ITokenPayload } from "../interfaces/token.intarface";
 import { IUser } from "../interfaces/user.interface";
 import { userService } from "../services/user.service";
 
@@ -51,6 +53,40 @@ class UserController {
             await userService.deleteUserById(userId);
 
             res.status(StatusCodes.NO_CONTENT).end();
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    public async blockUser(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id: userId } = req.params;
+            const { userId: myId } = req.res.locals
+                .tokenPayload as ITokenPayload;
+
+            if (userId === myId) {
+                throw new ApiError("Not permitted", StatusCodes.FORBIDDEN);
+            }
+            const user = await userService.blockUser(userId);
+
+            res.status(StatusCodes.OK).json(user);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    public async unBlockUser(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id: userId } = req.params;
+            const { userId: myId } = req.res.locals
+                .tokenPayload as ITokenPayload;
+
+            if (userId === myId) {
+                throw new ApiError("Not permitted", StatusCodes.FORBIDDEN);
+            }
+            const user = await userService.unBlockUser(userId);
+
+            res.status(StatusCodes.OK).json(user);
         } catch (error) {
             next(error);
         }

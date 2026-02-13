@@ -11,6 +11,7 @@ export interface IUser extends IBase {
     age: number;
     isDeleted: boolean;
     isVerified: boolean;
+    isActive: boolean;
 }
 
 export type UserCreateDTO = Pick<

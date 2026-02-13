@@ -2,8 +2,9 @@ import { NextFunction, Request, Response } from "express";
 
 import { StatusCodes } from "../enums/status-codes.enum";
 import { ApiError } from "../errors/api.error";
-import { IRefresh } from "../interfaces/token.intarface";
+import { IRefresh, ITokenPayload } from "../interfaces/token.intarface";
 import { tokenService } from "../services/token.service";
+import { userService } from "../services/user.service";
 
 class AuthMiddleware {
     public async checkAccessToken(
@@ -41,6 +42,15 @@ class AuthMiddleware {
 
             if (!isTokenExists) {
                 throw new ApiError("Invalid token", StatusCodes.UNAUTHORIZED);
+            }
+
+            const isActive = userService.isActive(tokenPayload.userId);
+
+            if (!isActive) {
+                throw new ApiError(
+                    "Account is inactive",
+                    StatusCodes.FORBIDDEN,
+                );
             }
 
             req.res.locals.tokenPayload = tokenPayload;
@@ -83,6 +93,20 @@ class AuthMiddleware {
             }
 
             req.res.locals.tokenPayload = tokenPayload;
+
+            next();
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    public isAdmin(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { role } = req.res.locals.tokenPayload as ITokenPayload;
+
+            if (role !== "admin") {
+                throw new ApiError("Has no permission", StatusCodes.FORBIDDEN);
+            }
 
             next();
         } catch (error) {
