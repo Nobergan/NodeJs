@@ -1,17 +1,13 @@
 import { Router } from "express";
 
 import { userController } from "../controllers/user.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
 import { commonMiddleware } from "../middlewares/common.middleware";
 import { UserValidator } from "../validators/user.validator";
 
 const router = Router();
 
 router.get("/", userController.getAllUsers);
-router.post(
-    "/",
-    commonMiddleware.validateBody(UserValidator.createUser),
-    userController.createUser,
-);
 router.get(
     "/:id",
     commonMiddleware.isIdValid("id"),
@@ -19,12 +15,14 @@ router.get(
 );
 router.patch(
     "/:id",
+    authMiddleware.checkAccessToken,
     commonMiddleware.isIdValid("id"),
     commonMiddleware.validateBody(UserValidator.updateUser),
     userController.updateUserById,
 );
 router.delete(
     "/:id",
+    authMiddleware.checkAccessToken,
     commonMiddleware.isIdValid("id"),
     userController.deleteUserById,
 );
