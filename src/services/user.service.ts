@@ -1,19 +1,11 @@
 import { StatusCodes } from "../enums/status-codes.enum";
 import { ApiError } from "../errors/api.error";
-import {
-    IUser,
-    UserCreateDTO,
-    UserUpdateDTO,
-} from "../interfaces/user.interface";
+import { IUser } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
 
 class UserService {
     public getAllUsers(): Promise<IUser[]> {
         return userRepository.getAllUsers();
-    }
-
-    public createUser(user: UserCreateDTO): Promise<IUser> {
-        return userRepository.createUser(user);
     }
 
     public async getUserById(userId: string): Promise<IUser> {
@@ -28,7 +20,7 @@ class UserService {
 
     public async updateUserById(
         userId: string,
-        user: UserUpdateDTO,
+        user: Partial<IUser>,
     ): Promise<IUser> {
         const data = await userRepository.updateUserById(userId, user);
 
@@ -72,6 +64,10 @@ class UserService {
 
     public async unBlockUser(userId: string | string[]): Promise<IUser> {
         return await userRepository.unBlockUser(userId);
+    }
+
+    public async getUserByEmail(email: string): Promise<IUser> {
+        return await userRepository.getUserByEmail(email);
     }
 }
 
