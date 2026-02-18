@@ -1,0 +1,24 @@
+services: # List of services (containers)
+  app: # Name of the first service - our application
+    build: # Build instructions for the image
+      context: . # Build context - current directory (where Dockerfile is)
+    ports: # Port mapping
+      - "5555:5001" # Host port 5555 maps to container port 5001
+    env_file: # Environment variables file
+      - .env # Path to the .env file
+    volumes: # Volume mounting for file synchronization
+      - ./backend:/app # Map local backend folder to /app folder in container
+      - /app/node_modules # Anonymous volume for node_modules to avoid host conflicts
+    restart: on-failure # Automatically restart container if it fails
+    command: > # Command to run the application
+      sh -c "npm start" # Run npm start via shell
+
+  db: # Name of the second service - database
+    image: mongo # Use official MongoDB image
+    ports: # Port mapping for database
+      - "1234:27017" # Host port 1234 maps to container port 27017
+    env_file: # Environment variables for database
+      - .env.db # Path to DB settings file
+    volumes: # Data persistence for database
+      - ./mongo_db:/data/db # Map local mongo_db folder to MongoDB data directory
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro # Initialization script (read-only)
