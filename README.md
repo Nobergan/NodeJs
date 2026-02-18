@@ -41,6 +41,45 @@
 3.  **Доступ до API**: Додаток буде доступний за адресою `http://localhost:5555`.
 4.  **Доступ до БД**: Ви можете підключитися до MongoDB через `mongodb://user:user@localhost:1234/nodejs-express-db`.
 
+## 📋 Змінні оточення (Environment Variables)
+
+Для роботи проекту необхідно налаштувати два файли конфігурації. Ви можете скопіювати наведені нижче приклади.
+
+### 1. `.env` (Основні налаштування додатку)
+Цей файл містить секрети для JWT, налаштування пошти та підключення до бази даних.
+
+```env
+PORT=5001
+MONGO_URI=mongodb://user:user@db:27017/nodejs-express-db
+
+JWT_ACCESS_SECRET=your_access_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+JWT_ACCESS_LIFETIME=10m
+JWT_REFRESH_LIFETIME=20m
+
+JWT_ACTIVATE_SECRET=your_activate_secret
+JWT_ACTIVATE_LIFETIME=1h
+JWT_RECOVERY_SECRET=your_recovery_secret
+JWT_RECOVERY_LIFETIME=10m
+
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password
+
+FRONTEND_URL=http://localhost:3000
+```
+
+### 2. `.env.db` (Налаштування бази даних MongoDB)
+Цей файл використовується Docker для ініціалізації користувача та бази даних.
+
+```env
+# Назва бази даних, яка буде створена при запуску
+MONGO_INITDB_DATABASE=nodejs-express-db
+# Кореневе ім'я користувача для MongoDB
+MONGO_INITDB_ROOT_USERNAME=user
+# Пароль для кореневого користувача
+MONGO_INITDB_ROOT_PASSWORD=user
+```
+
 ---
 
 ## ❓ Навіщо взагалі потрібен Docker?
