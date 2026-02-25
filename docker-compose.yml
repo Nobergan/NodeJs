@@ -11,8 +11,8 @@ services: # Список сервісів (контейнерів), які пр�
       - ./backend:/app # Локальна ./backend монтується в /app (зручно для розробки, live sync)
       - /app/node_modules # Анонімний том для node_modules, щоб не конфліктувати з хостом
     restart: on-failure # Автоматично перезапускати контейнер, якщо він впав з помилкою (non-zero exit)
-    command: > # Перевизначення команди запуску контейнера
-      sh -c "npm start" # Запуск npm start через shell (зручно для ланцюжків команд)
+    # Перевизначення команди запуску контейнера (запуск npm start через shell)
+    command: ["sh", "-c", "npm start"]
 
   db: # Сервіс бази даних (MongoDB)
     image: mongo # Офіційний образ MongoDB з Docker Hub

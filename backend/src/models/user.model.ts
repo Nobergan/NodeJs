@@ -15,7 +15,16 @@ const userSchema = new Schema(
         isVerified: { type: Boolean, default: false },
         isActive: { type: Boolean, default: false },
     },
-    { timestamps: true, versionKey: false },
+    {
+        timestamps: true,
+        versionKey: false,
+        toJSON: {
+            transform: (doc, ret) => {
+                delete ret.password;
+                return ret;
+            },
+        },
+    },
 );
 
 export const User = model<IUser>("user", userSchema);
