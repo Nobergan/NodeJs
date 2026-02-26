@@ -1,4 +1,8 @@
-export interface IConfig {
+import dotenv from "dotenv";
+
+dotenv.config({ path: "../.env" });
+
+interface IConfig {
     PORT: string;
     MONGO_URI: string;
 
@@ -18,7 +22,7 @@ export interface IConfig {
     FRONTEND_URL: string;
 }
 
-export const config: IConfig = {
+const config: IConfig = {
     PORT: process.env.PORT,
     MONGO_URI: process.env.MONGO_URI,
 
@@ -37,3 +41,5 @@ export const config: IConfig = {
 
     FRONTEND_URL: process.env.FRONTEND_URL,
 };
+
+export { config };

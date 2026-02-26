@@ -10,12 +10,12 @@ class UserRepository {
         return User.create(user);
     }
 
-    public getUserById(userId: string): Promise<IUser | null> {
+    public getUserById(userId: string | string[]): Promise<IUser | null> {
         return User.findById(userId);
     }
 
     public updateUserById(
-        userId: string,
+        userId: string | string[],
         data: Partial<IUser>,
     ): Promise<IUser | null> {
         return User.findByIdAndUpdate(userId, data, { new: true });

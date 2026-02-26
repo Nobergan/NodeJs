@@ -8,7 +8,7 @@ class UserService {
         return userRepository.getAllUsers();
     }
 
-    public async getUserById(userId: string): Promise<IUser> {
+    public async getUserById(userId: string | string[]): Promise<IUser> {
         const user = await userRepository.getUserById(userId);
 
         if (!user) {
@@ -19,7 +19,7 @@ class UserService {
     }
 
     public async updateUserById(
-        userId: string,
+        userId: string | string[],
         user: Partial<IUser>,
     ): Promise<IUser> {
         const data = await userRepository.updateUserById(userId, user);

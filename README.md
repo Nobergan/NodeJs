@@ -1,239 +1,213 @@
-# Node.js Full-Stack проект (Backend + Frontend + Nginx + MongoDB)
+# Node.js проєкт — dev-режим (backend + frontend + MongoDB)
 
-Проект складається з **бекенду** (Node.js/Express/TypeScript), **фронтенду** (React), **MongoDB** та **Nginx** як зворотного проксі. Все запускається через Docker Compose.
+Ця гілка налаштована під **локальну розробку**, де:
 
----
-
-## Структура проекту
-
-```
-NodeJs/
-├── backend/          # Node.js API (Express, TypeScript, Mongoose)
-├── frontend/         # React-додаток (вихідний код)
-├── client/           # Зібраний фронтенд для Nginx (статика)
-├── mongo_db/         # Дані MongoDB (персистентний том)
-├── nginx.conf        # Конфіг Nginx (проксі на API)
-├── mongo-init.js     # Скрипт ініціалізації користувача БД
-├── Dockerfile        # Образ для бекенду
-├── docker-compose.yml
-├── .env              # Змінні для бекенду (створити з .env.example)
-└── .env.db           # Змінні для MongoDB
-```
+- бекенд (`backend/`) та фронтенд (`frontend/`) запускаються **на хості** через `npm`;
+- MongoDB запускається в **Docker** через `docker-compose-dev.yml`.
 
 ---
 
-## Що потрібно встановити
+## Структура
 
-- **Docker** та **Docker Compose**
-- **Node.js** (для локальної розробки фронтенду та бекенду)
-- **npm** або **yarn**
-
----
-
-## Швидкий старт (все в Docker)
-
-### 1. Клонувати репозиторій та перейти в папку
-
-```bash
-git clone <url-репозиторію> NodeJs
-cd NodeJs
-```
-
-### 2. Налаштувати змінні оточення
-
-Скопіювати приклад і заповнити значення:
-
-```bash
-cp .env.example .env
-```
-
-Відредагувати `.env`. Мінімум для запуску:
-
-- `PORT=5001` — порт бекенду всередині контейнера (не змінювати для Docker)
-- `MONGO_URI=mongodb://user:user@db:27017/nodejs-express-db` — підключення до MongoDB у мережі Docker
-- JWT-секрети та інші поля за потреби (див. `.env.example`)
-
-Файл `.env.db` вже є; при потребі змінити логін/пароль БД там і в `mongo-init.js`.
-
-### 3. Зібрати фронтенд і покласти його в `client/`
-
-Nginx віддає статику з папки `client/`, тому спочатку потрібно зібрати React-додаток:
-
-```bash
-cd frontend
-npm install
-npm run build
-cp -r build/* ../client/
-cd ..
-```
-
-Якщо папки `client/` ще немає — створити її і потім копіювати:
-
-```bash
-mkdir -p ../client
-cp -r build/* ../client/
-```
-
-### 4. Запустити всі сервіси
-
-З кореня проекту:
-
-```bash
-docker compose up --build
-```
-
-Або у фоновому режимі:
-
-```bash
-docker compose up --build -d
-```
-
-### 5. Відкрити в браузері
-
-- Сайт (фронт + API через Nginx): **http://localhost**
-- API напряму (без Nginx): **http://localhost:5555**
+- `backend/` — Node.js / Express / TypeScript API.
+- `frontend/` — React-додаток (Create React App + TypeScript).
+- `docker-compose-dev.yml` — dev-конфіг для MongoDB (лише база даних).
+- `mongo_db/` — дані MongoDB, які зберігаються на диску.
+- `.env` / `.env.db` — змінні оточення для бекенду та БД відповідно.
 
 ---
 
-## Основні команди для роботи з проектом
+## Попередні вимоги
 
-### Docker
+- встановлений **Node.js** та **npm**;
+- встановлений **Docker** та **Docker Compose**;
+- в корені проєкту присутні файли `.env` та `.env.db` з коректними значеннями.
 
-| Команда | Опис |
-|--------|------|
-| `docker compose up --build` | Зібрати образи і запустити контейнери (логи в консоль) |
-| `docker compose up --build -d` | Те саме, але у фоновому режимі |
-| `docker compose down` | Зупинити і видалити контейнери |
-| `docker compose down -v` | Зупинити контейнери і видалити томи (у т.ч. дані MongoDB у томах) |
-| `docker compose ps` | Показати статус сервісів |
-| `docker compose logs -f` | Дивитися логи всіх сервісів (Ctrl+C — вихід) |
-| `docker compose logs -f app` | Логи тільки бекенду |
-| `docker compose logs -f db` | Логи тільки MongoDB |
-| `docker compose restart app` | Перезапустити тільки бекенд |
+---
 
-### Бекенд (локально, без Docker)
+## Швидкий старт (рекомендований варіант)
 
-Якщо хочете запускати API на своїй машині (наприклад, для дебагу):
+Усі команди нижче виконуються з **кореня репозиторію** (`NodeJs`), якщо не вказано інше.
+
+1. **Підняти MongoDB в Docker**
+
+```bash
+docker compose -f docker-compose-dev.yml up -d
+```
+
+Це:
+
+- підніме контейнер `db` (MongoDB);
+- пробросить порт `1234` на хості → Mongo буде доступна як  
+  `mongodb://localhost:1234`;
+- використає змінні з `.env.db` та volume `./mongo_db` для збереження даних;
+- виконає `mongo-init.js` при першому старті (створення користувача/БД).
+
+2. **Запустити бекенд (Node.js API)**
 
 ```bash
 cd backend
-npm install
-```
-
-У `.env` вказати:
-
-- `PORT=5001` (або інший вільний порт)
-- `MONGO_URI=mongodb://user:user@localhost:1234/nodejs-express-db` — якщо MongoDB у Docker на порту 1234
-
-Потім:
-
-```bash
+npm install        # один раз
 npm start
 ```
 
-Це збирає TypeScript і запускає сервер з hot-reload.
+Скрипти з `backend/package.json`:
 
-### Фронтенд (локально, режим розробки)
+- `npm start`:
+  - очищає папку `dist`;
+  - компілює TypeScript;
+  - запускає `src/main.ts` через `tsx` у режимі `--watch`.
 
-Режим розробки з hot-reload на порту 3000:
+Для коректної роботи потрібно налаштувати `.env` (див. нижче).
+
+3. **Запустити фронтенд (React)**
+
+В іншому терміналі:
 
 ```bash
 cd frontend
-npm install
+npm install        # один раз
 npm start
 ```
 
-У браузері відкриється **http://localhost:3000**. Щоб фронт ходив на API через Nginx (порт 80), Nginx і бекенд мають бути запущені (наприклад, через `docker compose up`). Якщо API на іншому порту — у коді фронту використовується відносний шлях `/api/`, тому при `localhost:3000` потрібно або проксі в `package.json`, або змінна оточення для base URL.
+- відкриється dev-сервер на `http://localhost:3000`;
+- запити з фронту мають ходити на бекенд (порт з `PORT` у `.env` бекенду, наприклад `http://localhost:5001`).
 
-### Збірка фронтенду після змін
+---
 
-Після змін у `frontend/` запустити збірку — результат автоматично потрапляє в `client/` (див. нижче):
+## Налаштування змінних оточення
 
-```bash
-cd frontend
-npm run build
-```
+### Бекенд (`.env`)
 
-Потім перезавантажити сторінку в браузері.
+Мінімальний набір змінних (імена орієнтовні, звірити з кодом):
 
-### npm-watch — авто-перезбірка фронтенду
+- `PORT=5001` — порт, на якому слухає бекенд локально;
+- `MONGO_URI=mongodb://<USER>:<PASSWORD>@localhost:1234/<DB_NAME>` — строка підключення до MongoDB, яка піднята через `docker-compose-dev.yml`.
 
-У проекті використовується **npm-watch** (`^0.13.0`): він слідкує за змінами в `frontend/src` (файли `js`, `css`) і автоматично запускає `npm run build`.
+Значення `<USER>`, `<PASSWORD>`, `<DB_NAME>` повинні відповідати тим, що задані в `.env.db` та `mongo-init.js`.
 
-Запустити сторожіння:
+### MongoDB (`.env.db`)
 
-```bash
-cd frontend
-npm run watch
-```
+Файл використовується тільки Docker-ом для сервісу `db`:
 
-Після кожного білду зміни самі копіюються в `client/` — нічого робити вручну не потрібно.
+- типові змінні: `MONGO_INITDB_ROOT_USERNAME`, `MONGO_INITDB_ROOT_PASSWORD`, `MONGO_INITDB_DATABASE` тощо;
+- саме ці значення потрібно використовувати в `MONGO_URI` бекенду.
 
-**Де це налаштовано:** у `frontend/package.json`:
+---
 
-- Секція **`"watch"`** — для npm-watch: `"patterns": ["src"]`, `"extensions": "js, css"`; при зміні файлів викликається скрипт `build`.
-- Скрипт **`"postbuild"`** — npm автоматично запускає його після успішного `build`; там виконується копіювання `build/*` у `../client/`, щоб Nginx одразу віддавав оновлений фронт.
+## Детальніше про сервіси
 
-### MongoDB (підключення з хоста)
+### MongoDB (docker-compose-dev.yml)
 
-Порти з `docker-compose`: MongoDB доступна на **localhost:1234**.
+Файл `docker-compose-dev.yml` містить сервіс:
 
-- **MongoDB Compass:** `mongodb://user:user@localhost:1234/nodejs-express-db`
-- **mongosh:**
+- `db`:
+  - образ: `mongo`;
+  - порти: `1234:27017` (підключення з хоста: `mongodb://localhost:1234`);
+  - `env_file: .env.db`;
+  - volume `./mongo_db:/data/db` для збереження даних;
+  - `./mongo-init.js` як init-скрипт при першому старті.
+
+**Приклади підключення:**
+
+- з бекенду: `MONGO_URI=mongodb://user:user@localhost:1234/nodejs-express-db`  
+  (імена/паролі взяти з `.env.db` та `mongo-init.js`);
+- з MongoDB Compass: `mongodb://user:user@localhost:1234/nodejs-express-db`;
+- з `mongosh`:
 
 ```bash
 mongosh "mongodb://user:user@localhost:1234/nodejs-express-db"
 ```
 
----
+### Backend (Node.js / TypeScript)
 
-## Порти
+Основні команди (у каталозі `backend`):
 
-| Сервіс | Порт на хості | Опис |
-|--------|----------------|------|
-| Nginx | 80 | Сайт і проксі на API (`/api/` → бекенд) |
-| Backend (app) | 5555 | Прямий доступ до API без Nginx |
-| MongoDB (db) | 1234 | Підключення до БД з хоста |
+- `npm install` — встановити залежності;
+- `npm start` — зібрати та запустити сервер з hot-reload;
+- `PORT` та `MONGO_URI` беруться з `.env`.
 
----
+Типовий URL бекенду після запуску:  
+`http://localhost:<PORT>` (наприклад, `http://localhost:5001`).
 
-## Як це працює локально (через Docker)
+### Frontend (React)
 
-Усе крутиться **локально в Docker**: браузер спілкується тільки з Nginx на твоєму комп’ютері, доступ до MongoDB йде лише з бекенду всередині Docker, не напряму з браузера.
+Основні команди (у каталозі `frontend`):
 
-**Ланцюжок запитів:**
+- `npm install` — встановити залежності;
+- `npm start` — dev-режим з hot-reload на `http://localhost:3000`;
+- `npm run build` — production-збірка у `frontend/build`;
+- `npm run watch` — автозбірка через `npm-watch` за змінами у `src` (`ts, tsx, css`).
 
-1. **Ти відкриваєш у браузері** `http://localhost` (порт 80 на твоїй машині).
-2. **На порту 80 слухає контейнер Nginx** (сервіс `web`). Він приймає всі запити.
-3. **Якщо запит за статикою** (HTML, JS, CSS, картинки) — Nginx віддає файли з папки `client/` (там лежить зібраний React).
-4. **Якщо запит починається з `/api/`** — Nginx не віддає файл, а **проксує** його в контейнер з бекендом (`app`), який слухає порт 5001 всередині мережі Docker.
-5. **Бекенд у контейнері `app`** обробляє запит і при потребі звертається до **MongoDB у контейнері `db`** (по імені `db` і порту 27017 всередині Docker). Користувач і браузер до MongoDB напряму не підключаються.
-6. Відповідь повертається назад: **app** → Nginx → браузер.
-
-**Коротко:** браузер ↔ лише Nginx (localhost:80); Nginx ↔ статика з `client/` або проксі на `app`; `app` ↔ `db` (MongoDB). Усе це локально в Docker, без прямого доступу до Mongo з твого ПК у цій робочій схемі.
+Фронтенд має бути налаштований на звернення до бекенду (URL API задається через відносний шлях або змінні оточення — див. реалізацію у `frontend/src`).
 
 ---
 
-## Типові кроки після клонування
+## Upload files (завантаження аватара)
+
+Бекенд підтримує завантаження **аватара користувача**: зображення зберігаються на диску, шлях записується в поле `avatar` користувача в БД.
+
+### Як це працює
+
+- **Маршрут:** `PATCH /api/users/upload-avatar/:id`  
+  (параметр `:id` — ID користувача).
+- **Тіло запиту:** `multipart/form-data`, поле файлу має називатися **`avatar`**.
+- **Дозволені формати:** JPEG, JPG, PNG, GIF (перевіряються і по розширенню, і по `Content-Type`).
+- **Обмеження розміру:** 5 МБ на файл.
+- **Збереження:** файли зберігаються в папці `backend/upload/` з унікальним ім’ям (UUID v6 + оригінальне розширення). У БД в профіль користувача записується повний шлях до файлу (наприклад, для подальшого відображення).
+
+### Віддача завантажених файлів
+
+Завантажені зображення віддаються бекендом як статика:
+
+- **URL:** `GET /media/<ім'я_файлу>`  
+  наприклад: `http://localhost:5001/media/1f1134f3-ca88-6fe0-acbe-8d151b2565fd.jpg`
+- Фізично файли лежать у `backend/upload/`; Express обслуговує їх через `express.static("upload")` за префіксом `/media`.
+
+### Де це реалізовано в коді
+
+- **Конфіг Multer:** `backend/src/configs/multer.config.ts` — `storage` (папка `upload`, ім’я файлу = UUID + розширення), `fileFilter` (тільки зображення), `limits` (5 МБ).
+- **Роутер:** `backend/src/routers/user.router.ts` — маршрут `PATCH /upload-avatar/:id` з `upload.single("avatar")`.
+- **Контролер:** `backend/src/controllers/user.controller.ts` — метод `uploadAvatar`: перевірка наявності файлу, оновлення користувача полем `avatar: req.file.path`.
+- **Статика:** `backend/src/main.ts` — `app.use("/media", express.static(path.join(process.cwd(), "upload")))`.
+
+Для відображення аватара на фронті достатньо підставляти URL виду:  
+`<BASE_URL_БЕКЕНДУ>/media/<ім'я_файлу>` (ім’я файлу можна отримати з поля `avatar` користувача, обрізавши шлях до `upload/...` або зберігаючи в БД лише ім’я файлу — залежно від поточної реалізації).
+
+---
+
+## Корисні команди
+
+- **Підняти MongoDB (dev) у Docker:**
 
 ```bash
-cd NodeJs
-cp .env.example .env
-# Відредагувати .env (PORT=5001, MONGO_URI=mongodb://user:user@db:27017/nodejs-express-db тощо)
-
-cd frontend && npm install && npm run build && cp -r build/* ../client/ && cd ..
-docker compose up --build
+docker compose -f docker-compose-dev.yml up -d
 ```
 
-Далі відкрити **http://localhost** у браузері.
+- **Зупинити MongoDB та видалити контейнер (дані у `mongo_db/` збережуться):**
 
----
+```bash
+docker compose -f docker-compose-dev.yml down
+```
 
-## Можливі проблеми
+- **Переглянути логи MongoDB:**
 
-- **Порт 80 зайнятий** — змінити в `docker-compose.yml` у сервісі `web`: наприклад, `"8080:80"` і тоді заходити на http://localhost:8080.
-- **Порт 5555 або 1234 зайнятий** — аналогічно змінити маппінг портів у `docker-compose.yml`.
-- **Порожня сторінка після відкриття localhost** — перевірити, що виконано `npm run build` у `frontend/` і скопійовано вміст `build/` у `client/`.
-- **API не відповідає** — перевірити логи: `docker compose logs app`, і що в `.env` вказано `PORT=5001` та коректний `MONGO_URI` для мережі Docker (`db:27017`).
+```bash
+docker compose -f docker-compose-dev.yml logs -f db
+```
 
-Якщо потрібно, можна додати окремі секції під Windows або production-деплой.
+- **Запустити бекенд з hot-reload:**
+
+```bash
+cd backend
+npm start
+```
+
+- **Запустити фронтенд у dev-режимі:**
+
+```bash
+cd frontend
+npm start
+```
+
+Цього набору команд достатньо, щоб у цій гілці повністю підняти MongoDB, бекенд та фронтенд у dev-режимі.
