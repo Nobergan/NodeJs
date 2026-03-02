@@ -1,0 +1,10 @@
+services: # Список сервісів (контейнерів), які працюють разом
+  db: # Сервіс бази даних (MongoDB)
+    image: mongo # Офіційний образ MongoDB з Docker Hub
+    ports: # Проброс порту MongoDB на хост (для Compass/CLI підключень)
+      - "1234:27017" # ХОСТ:КОНТЕЙНЕР -> підключення: mongodb://localhost:1234
+    env_file: # Змінні оточення для MongoDB
+      - .env.db # Налаштування БД (наприклад, MONGO_INITDB_ROOT_USERNAME/PASSWORD)
+    volumes: # Збереження даних + скрипти ініціалізації
+      - ./mongo_db:/data/db # Персистентність даних на хості (дані не зникнуть після рестарту)
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro # Ініт-скрипт при першому старті (read-only)
