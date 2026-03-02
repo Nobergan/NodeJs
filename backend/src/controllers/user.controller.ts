@@ -3,14 +3,17 @@ import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "../enums/status-codes.enum";
 import { ApiError } from "../errors/api.error";
 import { ITokenPayload } from "../interfaces/token.intarface";
-import { IUser } from "../interfaces/user.interface";
+import { IUser, IUserQuery } from "../interfaces/user.interface";
 import { userService } from "../services/user.service";
 
 class UserController {
     public async getAllUsers(req: Request, res: Response, next: NextFunction) {
         try {
-            const users = await userService.getAllUsers();
-            res.status(StatusCodes.OK).json(users);
+            const { validatedQuery } = req as any as {
+                validatedQuery: IUserQuery;
+            };
+            const data = await userService.getAllUsers(validatedQuery);
+            res.status(StatusCodes.OK).json(data);
         } catch (error) {
             next(error);
         }

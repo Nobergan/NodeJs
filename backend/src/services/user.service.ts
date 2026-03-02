@@ -1,11 +1,39 @@
+import path from "node:path";
+
 import { StatusCodes } from "../enums/status-codes.enum";
 import { ApiError } from "../errors/api.error";
-import { IUser } from "../interfaces/user.interface";
+import { IPaginatedResponse } from "../interfaces/paginated-response.interface";
+import { IUser, IUserQuery } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
 
 class UserService {
-    public getAllUsers(): Promise<IUser[]> {
-        return userRepository.getAllUsers();
+    public async getAllUsers(
+        query: IUserQuery,
+    ): Promise<IPaginatedResponse<IUser>> {
+        const dataFromDb = await userRepository.getAllUsers(query);
+        let data, totalItems;
+
+        if (dataFromDb.length) {
+            totalItems = dataFromDb[0].totalItems;
+            data = dataFromDb[0].data.map((u: IUser) => ({
+                ...u,
+                avatar: u.avatar
+                    ? `/media/${path.basename(u.avatar)}`
+                    : u.avatar,
+            }));
+        } else {
+            data = [];
+            totalItems = 0;
+        }
+
+        const totalPages = Math.ceil(totalItems / query.pageSize);
+        return {
+            totalItems,
+            totalPages,
+            prevPage: !!(query.page - 1),
+            nextPage: query.page + 1 <= totalPages,
+            data,
+        };
     }
 
     public async getUserById(userId: string | string[]): Promise<IUser> {

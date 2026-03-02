@@ -1,6 +1,7 @@
 import joi from "joi";
 
 import { RegexEnum } from "../enums/regex.enum";
+import { UserQueryOrder } from "../enums/user-query-order.enum";
 
 export class UserValidator {
     private static email = joi.string().email().trim();
@@ -23,7 +24,15 @@ export class UserValidator {
         age: this.age.required(),
     });
 
-    public static changeStatus = joi.object({
-        isActive: joi.boolean().required(),
+    public static query = joi.object({
+        pageSize: joi.number().min(1).max(100).default(10),
+        page: joi.number().min(1).default(1),
+        search: joi.string().trim(),
+        order: joi
+            .string()
+            .valid(
+                ...Object.values(UserQueryOrder),
+                ...Object.values(UserQueryOrder).map((item) => `-${item}`),
+            ),
     });
 }

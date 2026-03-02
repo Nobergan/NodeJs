@@ -15,6 +15,13 @@ export interface IUser extends IBase {
     isActive: boolean;
 }
 
+export interface IUserQuery {
+    pageSize: number;
+    page: number;
+    search?: string;
+    order?: string;
+}
+
 export type UserCreateDTO = Pick<
     IUser,
     "email" | "password" | "name" | "surname" | "age"

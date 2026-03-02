@@ -1,9 +1,63 @@
-import { IUser, UserCreateDTO } from "../interfaces/user.interface";
+import { QueryFilter } from "mongoose";
+
+import { IUser, IUserQuery, UserCreateDTO } from "../interfaces/user.interface";
 import { User } from "../models/user.model";
 
 class UserRepository {
-    public getAllUsers(): Promise<IUser[]> {
-        return User.find();
+    public getAllUsers(query: IUserQuery): Promise<any> {
+        // const skip = query.pageSize * (query.page - 1);
+        const filterObject: QueryFilter<IUser> = { isDeleted: false };
+
+        if (query.search) {
+            filterObject.$or = [
+                { name: { $regex: query.search, $options: "i" } },
+                { surname: { $regex: query.search, $options: "i" } },
+            ];
+        }
+
+        const orderObject: Record<string, 1 | -1> = {};
+
+        if (query.order) {
+            if (query.order.startsWith("-")) {
+                orderObject[query.order.slice(1)] = -1;
+            } else {
+                orderObject[query.order] = 1;
+            }
+        }
+
+        orderObject._id = 1;
+
+        const skip = query.pageSize * (query.page - 1);
+
+        return User.aggregate([
+            {
+                $match: filterObject as QueryFilter<Record<string, unknown>>,
+            },
+            {
+                $sort: orderObject,
+            },
+            {
+                $facet: {
+                    countStage: [{ $count: "totalItems" }],
+                    dataStage: [
+                        { $skip: skip },
+                        { $limit: query.pageSize },
+                        { $project: { password: 0 } },
+                    ],
+                },
+            },
+            {
+                $project: {
+                    totalItems: {
+                        $ifNull: [
+                            { $arrayElemAt: ["$countStage.totalItems", 0] },
+                            0,
+                        ],
+                    },
+                    data: "$dataStage",
+                },
+            },
+        ]);
     }
 
     public createUser(user: UserCreateDTO): Promise<IUser> {
