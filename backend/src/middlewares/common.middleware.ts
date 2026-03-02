@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ObjectSchema } from "joi";
 import { isObjectIdOrHexString } from "mongoose";
 
+import { StatusCodes } from "../enums/status-codes.enum";
 import { ApiError } from "../errors/api.error";
 
 export class CommonMiddleware {
@@ -28,6 +29,22 @@ export class CommonMiddleware {
                 next();
             } catch (error) {
                 next(new ApiError(error.details[0].message, 400));
+            }
+        };
+    }
+
+    public isFileExists() {
+        return async (req: Request, res: Response, next: NextFunction) => {
+            try {
+                if (!req.file) {
+                    throw new ApiError(
+                        "No file uploaded",
+                        StatusCodes.BAD_REQUEST,
+                    );
+                }
+                next();
+            } catch (e) {
+                next(e);
             }
         };
     }

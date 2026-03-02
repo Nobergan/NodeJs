@@ -1,6 +1,7 @@
 import path from "node:path";
 
-import multer from "multer";
+import { Request } from "express";
+import multer, { FileFilterCallback } from "multer";
 import { v6 } from "uuid";
 
 import { StatusCodes } from "../enums/status-codes.enum";
@@ -17,19 +18,18 @@ const storage = multer.diskStorage({
     },
 });
 
-const fileFilter = (req, file, cb) => {
+const fileFilter = (
+    req: Request,
+    file: Express.Multer.File,
+    cb: FileFilterCallback,
+) => {
     const allowedTypes = /.jpeg|.jpg|.png|.gif/;
-    console.log(
-        path.extname(file.originalname).toLowerCase(),
-        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
-    );
-    console.log(file.minetype, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     const extname = allowedTypes.test(
         path.extname(file.originalname).toLowerCase(),
     );
-    const mimetype = allowedTypes.test(file.mimetype);
+    const minetype = allowedTypes.test(file.mimetype);
 
-    if (extname && mimetype) {
+    if (extname && minetype) {
         return cb(null, true);
     } else cb(new ApiError("Only images are allowed", StatusCodes.BAD_REQUEST));
 };
