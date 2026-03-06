@@ -22,4 +22,8 @@ export const emailConstants: EmailConstants<typeof Email> = {
         subject: "Password recovery",
         template: "recovery",
     },
+    [Email.SPAM_EMAIL]: {
+        subject: "Spam email",
+        template: "spam-email",
+    },
 };
