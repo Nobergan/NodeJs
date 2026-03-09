@@ -1,0 +1,59 @@
+{
+    "name": "nodejs",
+    "version": "1.0.0",
+    "description": "",
+    "homepage": "https://github.com/Nobergan/NodeJs#readme",
+    "bugs": {
+        "url": "https://github.com/Nobergan/NodeJs/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Nobergan/NodeJs.git"
+    },
+    "license": "ISC",
+    "author": "",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "start": "rimraf dist && tsc-watch --onSuccess \"npm run watch:server\"",
+        "watch:server": "tsx src/main.ts --watch"
+    },
+    "dependencies": {
+        "bcrypt": "^6.0.0",
+        "cron": "^4.4.0",
+        "dayjs": "^1.11.19",
+        "express": "^5.2.1",
+        "handlebars": "^4.7.8",
+        "joi": "^17.7.0",
+        "jsonwebtoken": "^9.0.3",
+        "mongoose": "^9.1.5",
+        "multer": "^2.0.2",
+        "nodemailer": "^8.0.1",
+        "uuid": "^13.0.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.22.0",
+        "@types/bcrypt": "^5.0.2",
+        "@types/cors": "^2.8.17",
+        "@types/cron": "^2.0.1",
+        "@types/express": "^5.0.6",
+        "@types/handlebars": "^4.0.40",
+        "@types/jsonwebtoken": "^9.0.9",
+        "@types/mongoose": "^5.11.97",
+        "@types/multer": "^2.0.0",
+        "@types/nodemailer": "^7.0.10",
+        "@typescript-eslint/eslint-plugin": "^8.26.1",
+        "@typescript-eslint/parser": "^8.26.1",
+        "cors": "^2.8.5",
+        "dotenv": "^17.3.1",
+        "eslint": "^9.22.0",
+        "eslint-config-prettier": "^10.1.1",
+        "eslint-plugin-import": "^2.31.0",
+        "eslint-plugin-prettier": "^5.2.3",
+        "eslint-plugin-simple-import-sort": "^12.1.1",
+        "rimraf": "^6.1.2",
+        "tsc-watch": "^7.2.0",
+        "tsx": "^4.19.3",
+        "typescript": "^5.9.3"
+    }
+}
